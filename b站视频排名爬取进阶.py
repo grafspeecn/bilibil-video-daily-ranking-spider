@@ -2,11 +2,9 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import pandas as pd
-import numpy as np
 from pandas.core.frame import DataFrame
-import pyecharts.options as opts
-from pyecharts.charts import Line, Bar, Page, Pie
-from pyecharts.commons.utils import JsCode
+
+from Bilibili_Rank import analyse
 
 
 def getHTMLText(url):
@@ -55,7 +53,7 @@ def Html_Analyse(html, AV_info_List):
     for i in range(len(rank_list)):
         AV_info_List.append([])
         AV_info_List[i].append(rank_list[i])
-        AV_info_List[i].append(aid_list[i][7:-1])
+        AV_info_List[i].append('AV'+aid_list[i][7:-1])
         AV_info_List[i].append(author_list[i][10:-1])
         AV_info_List[i].append(title_list[i][9:-1])
         AV_info_List[i].append(pts_list[i][6:])
@@ -69,7 +67,7 @@ def Html_Analyse(html, AV_info_List):
 def excel_save(List, sheet_title):
     df = DataFrame(List)
     df.columns = ['排名', 'AV号', 'UP名', '标题', '综合评分', '总播放量', '投币数量', '弹幕总数']
-    writer = pd.ExcelWriter('B站每日综合排行榜前100视频.xlsx')
+    writer = pd.ExcelWriter('B站{0}综合排行榜前100视频.xlsx'.format(sheet_title))
     df.to_excel(excel_writer=writer, index=False, encoding='utf-8', sheet_name=sheet_title)
     writer.save()
     writer.close()
@@ -82,6 +80,7 @@ def main():
     sheet_title = get_title(html)
     List = Html_Analyse(html, AV_info_List)
     excel_save(List, sheet_title)
+    analyse(sheet_title)
 
 
 main()
